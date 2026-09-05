@@ -253,8 +253,10 @@ export const STATS_HTML = `<!doctype html>
 
   function updateScopeHint() {
     var hint = '';
-    if (state.from && state.to) hint = '已筛选：' + state.from + ' ~ ' + state.to + (state.from === state.to ? '（单日）' : '');
-    else if (state.from) hint = '已筛选：自 ' + state.from + ' 起';
+    if (state.from && state.to) {
+      if (state.from === state.to && state.from === todayStr()) hint = '默认显示今天（今日数据每 10 秒自动刷新）';
+      else hint = '已筛选：' + state.from + ' ~ ' + state.to + (state.from === state.to ? '（单日）' : '');
+    } else if (state.from) hint = '已筛选：自 ' + state.from + ' 起';
     else hint = '显示全部时间（点击柱状图某天可只看该天）';
     document.getElementById('scopeHint').textContent = hint;
     // 实时指示：范围覆盖今天则实时刷新
@@ -310,11 +312,17 @@ export const STATS_HTML = `<!doctype html>
     loadDaily();
   });
 
-  // 初始化
-  state.chartEnd = todayStr();
-  loadStats();
-  loadDaily();
-  startPoll();
+  // 初始化：默认只显示「今天」，不再铺满全部历史
+  (function () {
+    var t = todayStr();
+    state.from = t; state.to = t; state.selDay = t;
+    document.getElementById('from').value = t;
+    document.getElementById('to').value = t;
+    state.chartEnd = t;
+    loadStats();
+    loadDaily();
+    startPoll();
+  })();
 </script>
 </body>
 </html>`
