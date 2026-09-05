@@ -135,3 +135,28 @@ fly deploy
 - [ ] 自己访问一次站点，微信很快收到「新访客」提醒
 - [ ] AI 答疑能正常回答（验证 `ZHIPU_API_KEY` 生效）
 - [ ] 在平台控制台确认持久卷已挂载（否则数据重启后丢失）
+
+---
+
+## 九、GitHub Actions 自动部署（推荐）
+
+仓库已内置 `.github/workflows/deploy.yml`：每次 `git push` 到 `main` 即自动 `fly deploy`，
+无需手动跑命令。
+
+### 一次性配置
+1. 安装 Fly CLI 并登录、创建应用与持久卷（见方案 A），并用
+   `fly secrets set ZHIPU_API_KEY=… SERVERCHAN_KEY=… ADMIN_TOKEN=…` 写入应用密钥。
+2. 生成本机令牌并添加到 GitHub：
+   ```bash
+   fly auth token          # 复制输出的字符串
+   ```
+   打开 `https://github.com/<用户名>/<仓库>/settings/secrets/actions`
+   → New repository secret → Name 填 `FLY_API_TOKEN`，Value 粘贴上面的令牌。
+3. 在 Fly 控制台把应用的 `Auto deploy` 关掉（避免与 Actions 重复触发），保留 Actions 接管。
+
+### 之后
+只需 `git push origin main`，GitHub Actions 会自动构建镜像并部署；
+访问 `https://<app>.fly.dev` 即为最新版。应用级密钥已存于 Fly 平台，部署自动沿用。
+
+> 此工作流仅需要 `FLY_API_TOKEN` 一个密钥；`ZHIPU_API_KEY` / `SERVERCHAN_KEY` /
+> `ADMIN_TOKEN` 等不进 GitHub，只在 Fly 平台侧设置，更安全。

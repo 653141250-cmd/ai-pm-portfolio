@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "server": "node server/index.js",
     "start": "node server/index.js",
+    "stats": "bash start.sh",
     "dev:all": "vite --host --port 5173 & node server/index.js"
   },
   "dependencies": {

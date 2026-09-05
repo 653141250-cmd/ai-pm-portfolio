@@ -38,3 +38,6 @@ pnpm-debug.log*
 
 # 访客行为数据（含访客 IP 等 PII，运行时生成，绝不入库）
 server/data/
+
+# 验证/对比截图（非部署产物）
+output/
