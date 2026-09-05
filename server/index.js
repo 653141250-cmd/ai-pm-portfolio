@@ -14,7 +14,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getReply as localReply, localHit } from './chatKnowledge.js'
-import { appendEvent, resolveRegion, aggregate, dailySeries, maskIp, getVisitorMemory } from './analytics.js'
+import { appendEvent, resolveRegion, aggregate, dailySeries, maskIp, getVisitorMemory, parseDateStr } from './analytics.js'
 import { pushWechat, wechatEnabled } from './push.js'
 import { STATS_HTML } from './statsPage.js'
 
@@ -416,7 +416,7 @@ async function handleTrack(req, res) {
       const stats = aggregate()
       pushWechat(
         '👀 新访客到访作品集',
-        `**地区**：${region || '未知'}\n**到访时间**：${new Date(ev.ts).toLocaleString('zh-CN')}\n**IP**：${maskIp(ip)}\n**当日累计访问**：${stats.totals.todayVisits} 次\n**页面**：${ev.path || '/'}\n**设备**：${(ev.ua || '').slice(0, 90)}`
+        `**地区**：${region || '未知'}\n**到访时间**：${new Date(ev.ts).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}\n**IP**：${maskIp(ip)}\n**当日累计访问**：${stats.totals.todayVisits} 次\n**页面**：${ev.path || '/'}\n**设备**：${(ev.ua || '').slice(0, 90)}`
       )
       lastVisitPush.set(ev.visitorId, now)
     }
@@ -430,7 +430,7 @@ async function handleTrack(req, res) {
     } else {
       pushWechat(
         '💬 Ai答疑小蜜被提问',
-        `**访客地区**：${region || '未知'}\n**时间**：${new Date(ev.ts).toLocaleString('zh-CN')}\n**问题**：${ev.question}\n**回复**：\n> ${(ev.answer || '').slice(0, 800)}`
+        `**访客地区**：${region || '未知'}\n**时间**：${new Date(ev.ts).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}\n**问题**：${ev.question}\n**回复**：\n> ${(ev.answer || '').slice(0, 800)}`
       )
       lastChatPush.set(ev.visitorId, { ts: now, question: ev.question })
     }
@@ -446,15 +446,14 @@ function handleStats(req, res) {
   if (token !== ADMIN_TOKEN) {
     return sendJSON(res, 401, { error: 'unauthorized' })
   }
-  // 日期范围筛选：from/to 为 YYYY-MM-DD；仅 from 视为单日；均无则全量
+  // 日期范围筛选：from/to 为 YYYY-MM-DD（中国日期）；仅 from 视为单日；均无则全量
   const from = url.searchParams.get('from')
   const to = url.searchParams.get('to')
   let range = null
-  if (from && /^\d{4}-\d{2}-\d{2}$/.test(from)) {
-    const a = new Date(from + 'T00:00:00').getTime()
-    let b = a + 86400000
-    if (to && /^\d{4}-\d{2}-\d{2}$/.test(to)) b = new Date(to + 'T00:00:00').getTime() + 86400000
-    range = { fromTs: a, toTs: b }
+  const fromBounds = parseDateStr(from)
+  if (fromBounds) {
+    const toBounds = parseDateStr(to) || fromBounds
+    range = { fromTs: fromBounds.start, toTs: toBounds.end }
   }
   return sendJSON(res, 200, aggregate(range))
 }

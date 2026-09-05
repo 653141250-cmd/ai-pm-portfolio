@@ -12,6 +12,10 @@ const DATA_DIR = process.env.ANALYTICS_DIR
   : path.join(__dirname, 'data')
 const EVENTS_FILE = path.join(DATA_DIR, 'events.jsonl')
 
+// 统计/展示统一按中国时区（Asia/Shanghai，UTC+8，无夏令时）。
+// 避免服务器默认 UTC 与中国用户本地时间相差一天，导致「今天」数据对不上。
+const TZ_OFFSET_MS = 8 * 60 * 60 * 1000
+
 try {
   fs.mkdirSync(DATA_DIR, { recursive: true })
 } catch (e) {
@@ -33,24 +37,27 @@ export function maskIp(ip = '') {
   return ip
 }
 
-// ===== 日期工具（按服务器本地时区的「天」边界）=====
+// ===== 日期工具（统一按 Asia/Shanghai 的「天」边界）=====
 function dayBounds(ts) {
-  const d = new Date(ts)
-  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  // 把中国时间当成“偏移后的 UTC”来取整，得到当天 00:00 的 UTC 毫秒戳。
+  const chinaMs = ts + TZ_OFFSET_MS
+  const startChina = Math.floor(chinaMs / 86400000) * 86400000
+  const start = startChina - TZ_OFFSET_MS
   return { start, end: start + 86400000 }
 }
 function parseDateStr(s) {
-  // 'YYYY-MM-DD' -> 本地当天 00:00 起的 [start, end)
+  // 'YYYY-MM-DD'（中国日期）-> 当天 00:00 起的 UTC [start, end)
   const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!m) return null
-  const start = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime()
+  const start = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) - TZ_OFFSET_MS
   if (Number.isNaN(start)) return null
   return { start, end: start + 86400000 }
 }
 function ymd(ts) {
-  const d = new Date(ts)
+  // 返回中国日期字符串
+  const d = new Date(ts + TZ_OFFSET_MS)
   const p = (n) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`
 }
 
 export function appendEvent(ev) {
@@ -255,4 +262,4 @@ export function getVisitorMemory(visitorId, limit = 12) {
   return chats.slice(-Math.max(1, Math.min(50, Number(limit) || 12)))
 }
 
-export { DATA_DIR, EVENTS_FILE }
+export { DATA_DIR, EVENTS_FILE, parseDateStr }
