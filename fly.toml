@@ -1,0 +1,50 @@
+# ============================================================
+# Fly.io 部署配置（推荐：免费额度含 3GB 持久卷，可完整保留访客数据 + 微信推送）
+# 用法：
+#   1. flyctl 安装：brew install flyctl  （或 curl -L https://fly.io/install.sh | sh）
+#   2. fly auth login
+#   3. fly launch --no-deploy   （按提示选 region，如 hkg / nrt / sin）
+#   4. fly volumes create portfolio_data --region <上面选的region> --size 1
+#   5. fly secrets set ZHIPU_API_KEY=xxx SERVERCHAN_KEY=xxx ADMIN_TOKEN=xxx
+#   6. fly deploy
+# 部署后访问：https://<app>.fly.dev  ，统计页：https://<app>.fly.dev/stats?token=<ADMIN_TOKEN>
+# ============================================================
+app = "ai-pm-portfolio"
+primary_region = "hkg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8787"
+  ANALYTICS_DIR = "/app/server/data"
+  ZHIPU_MODEL = "glm-4-flash"
+  ZHIPU_BASE = "https://open.bigmodel.cn/api/paas/v4"
+  VISIT_PUSH_COOLDOWN_MIN = "30"
+
+[processes]
+  app = "node server/index.js"
+
+[[mounts]]
+  source = "portfolio_data"
+  destination = "/app/server/data"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8787
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 50
+    soft_limit = 25
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+  [[services.http_checks]]
+    interval = "15s"
+    grace_period = "5s"
+    method = "get"
+    path = "/health"
+    protocol = "http"

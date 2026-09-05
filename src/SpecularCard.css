@@ -1,0 +1,36 @@
+/* SpecularCard — 适配 React Bits SpecularButton 的高光描边效果到卡片 */
+.specular-card {
+  --sb-radius: 18px;
+  position: relative;
+  border-radius: var(--sb-radius);
+  outline: none;
+}
+
+.specular-card:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 3px;
+}
+
+/* Canvas 向外溢出 20px，让边缘流光能溢出卡片边界 */
+.specular-card__fx {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  z-index: 2;
+}
+.specular-card__fx canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 内容层：透明背景，浮在流光画布之上，自身不带样式 */
+.specular-card__label {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-height: 100%;
+}

@@ -1,0 +1,40 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# build output
+dist
+dist-ssr
+*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# editor / os
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.idea
+
+# local env (holds backend URL & LLM key — NEVER commit)
+.env
+.env.local
+.env.*.local
+
+# server-side resume context (PII, server-only)
+# 注意：server/resume.txt 是后端注入 LLM 的简历上下文，云端部署必须随仓库发布，
+# 否则后端读取不到会回退到内置摘要、丢失完整简历内容。因此此处不再忽略。
+# 它不含任何密钥（密钥仅在 .env / 云端环境变量中），可安全入库。
+# server/resume.txt
+
+# 访客行为数据（含访客 IP 等 PII，运行时生成，绝不入库）
+server/data/

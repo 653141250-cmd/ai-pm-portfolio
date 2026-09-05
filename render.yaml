@@ -1,0 +1,37 @@
+# ============================================================
+# Render 部署蓝图（连接 GitHub 仓库后一键部署）
+# 注意：持久磁盘需要付费 plan（Starter 及以上）；free plan 不含 disk，
+#       访客数据将无法持久化（重启/重新部署后清空）。若用 free plan 请知悉此限制。
+# 用法：Render 控制台 -> New -> Blueprint -> 关联本仓库 -> 自动读取本文件。
+#   或在仓库连接后手动 New Web Service 选 Docker，再按下方 envVars/disks 配置。
+# 部署后访问：https://<service>.onrender.com  ，统计页：/stats?token=<ADMIN_TOKEN>
+# ============================================================
+services:
+  - type: web
+    name: ai-pm-portfolio
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter            # 含持久磁盘；free 不含 disk
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8787"
+      - key: ANALYTICS_DIR
+        value: /app/server/data
+      - key: ZHIPU_MODEL
+        value: glm-4-flash
+      - key: ZHIPU_BASE
+        value: https://open.bigmodel.cn/api/paas/v4
+      - key: VISIT_PUSH_COOLDOWN_MIN
+        value: "30"
+      # 以下为密钥类，务必在 Render 环境变量面板填入真实值（sync:false 表示不从仓库读取）
+      - key: ZHIPU_API_KEY
+        sync: false
+      - key: SERVERCHAN_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+    disks:
+      - name: portfolio-data
+        mountPath: /app/server/data
+        sizeGB: 1

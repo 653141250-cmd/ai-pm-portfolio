@@ -1,0 +1,18 @@
+# 依赖与构建产物（镜像内会重新安装/构建，勿带入）
+node_modules
+dist
+
+# 密钥与运行时数据（绝不进镜像/仓库）
+.env
+.env.*
+server/data
+
+# 版本控制与日志
+.git
+.gitignore
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
