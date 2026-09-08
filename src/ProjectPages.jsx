@@ -802,9 +802,9 @@ function CardVisual4({ kind, onShotClick }) {
     return (
       <div className="card-visual">
         <div className="pain-stat">
-          <div className="v">15<small>min</small></div>
+          <div className="v">5<small>min</small></div>
           <div className="arrow">→</div>
-          <div className="v acc">2<small>min</small></div>
+          <div className="v acc">数秒</div>
         </div>
         <div className="pain-label">单张发票处理时间</div>
         <div className="pain-stat" style={{ marginTop: 24 }}>
@@ -962,7 +962,7 @@ function CardVisual4({ kind, onShotClick }) {
   if (kind === 'iv-metrics') {
     const ms = [
       { v: <>90<small>%</small></>, l: '审核准确率' },
-      { v: <>2<small>min</small></>, l: '单张发票处理时间' },
+      { v: <>数秒</>, l: '单张发票处理时间' },
       { v: <>2 <small>家</small></>, l: '种子客户试用' },
       { v: <>多格式</>, l: '票据格式支持' },
     ]
