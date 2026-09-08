@@ -255,7 +255,7 @@ function ProjectModal({ onClose, onShotClick }) {
             </div>
             <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.8, maxWidth: 760 }}>
               基于 Coze Workflow 编排的 AI 合同审核工具，从合同上传、智能解析、风险条款识别到报告生成一条链路打通。
-              已服务 3 家种子客户，单份审核时间从 45 分钟降至 8 分钟，识别准确率 92%。
+              已服务 3 家种子客户，单份审核时间从 45 分钟降至 5 分钟，识别准确率 92%。
             </p>
           </div>
 

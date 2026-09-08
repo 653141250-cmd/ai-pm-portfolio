@@ -27,7 +27,7 @@ function CardVisual({ kind, onShotClick }) {
         <div className="pain-stat">
           <div className="v">45<small>min</small></div>
           <div className="arrow">→</div>
-          <div className="v acc">8<small>min</small></div>
+          <div className="v acc">5<small>min</small></div>
         </div>
         <div className="pain-label">单份合同平均审核时长</div>
       </div>
@@ -179,7 +179,7 @@ function CardVisual({ kind, onShotClick }) {
   }
   if (kind === 'metrics') {
     const ms = [
-      { v: <>45 → 8 <small>min</small></>, l: '单份合同审核时长' },
+      { v: <>45 → 5 <small>min</small></>, l: '单份合同审核时长' },
       { v: <>92<small>%</small></>, l: '风险条款识别准确率' },
       { v: <>3 <small>家</small></>, l: '种子客户试运行' },
       { v: <>A+</>, l: '客户综合满意度' },
